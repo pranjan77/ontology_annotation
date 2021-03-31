@@ -1,0 +1,113 @@
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/6.2.2/handsontable.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/6.2.2/handsontable.full.min.css">
+</head>
+
+<body>
+  <button class="btn">Add row above</button>
+  <div id="ontology" class="hot handsontable htColumnHeaders"></div>
+  <script>
+var
+container = document.getElementById('ontology'),
+           hot3;
+
+hot = new Handsontable(container, {
+  manualColumnResize: true,
+  data:[["No search", "Search all public ontologies", "Restrict search to chebi and envo (eg. alanine, forest ecosystem) ", "Restrict search to Unit ontology (eg. meter)"],
+       [],[],[],[],[],[],[],[],[],[]],
+  manualRowResize: true,
+  outsideClickDeselects: false,
+  rowHeaders: true,
+  colHeaders: true,
+  columnSorting: true,
+  colWidths: 400,
+  fillHandle: true,
+  columns: [
+    {},
+  {
+    type: 'autocomplete',
+    source: function (query, process) {
+      $.ajax({
+        url: 'https://www.ebi.ac.uk/ols/api/select',
+        dataType: 'json',
+        data: {
+          q: query
+
+        },
+        success: function (response) {
+          var arr= new Array();
+
+          $.each(response.response.docs, function(index,value) {
+            arr.push( value.label + " | " + value.iri )
+          });
+            process(arr);
+
+        }
+      });
+    },
+    strict: false
+  },
+  {
+    type: 'autocomplete',
+    source: function (query, process) {
+      $.ajax({
+        url: 'https://www.ebi.ac.uk/ols/api/select',
+        dataType: 'json',
+        data: {
+          q: query,
+          ontology:"envo,chebi"
+        },
+        success: function (response) {
+          var arr= new Array();
+
+          $.each(response.response.docs, function(index,value) {
+            arr.push( value.label + " | " + value.iri )
+          });
+            process(arr);
+
+        }
+      });
+    },
+    strict: false
+  },
+
+
+  {
+    type: 'autocomplete',
+    source: function (query, process) {
+      $.ajax({
+        url: 'https://www.ebi.ac.uk/ols/api/select',
+        dataType: 'json',
+        data: {
+          q: query,
+          ontology:"uo"
+        },
+        success: function (response) {
+          var arr= new Array();
+
+          $.each(response.response.docs, function(index,value) {
+            arr.push( value.label + " | " + value.iri )
+          });
+            process(arr);
+
+        }
+      });
+    },
+    strict: false
+  },
+  {},
+  {},
+  {}
+  ],
+
+});
+
+document.querySelector('.btn').addEventListener('click', function(){
+  hot.alter('insert_row', hot3.getSelectedLast()[0], 1);
+})
+  </script>
+
+</body>
+</html>
